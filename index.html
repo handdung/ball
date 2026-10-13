@@ -1,0 +1,1164 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}</style>
+</head>
+<body>
+<title>국가대표 매치데이</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Saira+Condensed:wght@600;800&display=swap">
+<style>
+/* Layout: one-screen stadium app. Night match under floodlights; screens stack over a fixed pitch-dark ground. Single deliberate dark look. */
+:root{
+  --ink:#08110d;          /* stadium night */
+  --ink-2:#0f1c16;        /* panels */
+  --line:#24382d;         /* hairlines on dark */
+  --chalk:#eef3ea;        /* pitch-line white */
+  --mute:#93a89a;         /* secondary text */
+  --flood:#ffd76a;        /* floodlight amber, the single accent */
+  --flood-ink:#2a1f00;
+  --turf:#2b8243;
+  --f-display:"Black Han Sans","IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --f-num:"Saira Condensed","IBM Plex Sans KR",system-ui,sans-serif;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--ink);color:var(--chalk);font-family:var(--f-body);font-size:15px;line-height:1.55;overflow:hidden;-webkit-tap-highlight-color:transparent}
+#app{position:relative;height:100%;width:100%;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible{outline:2px solid var(--flood);outline-offset:3px}
+.screen{position:absolute;inset:0;overflow-y:auto;padding-block:28px;padding-inline:16px;display:flex;flex-direction:column;align-items:center;
+  background:
+   radial-gradient(60% 45% at 12% -5%, rgba(255,215,106,.20), transparent 70%),
+   radial-gradient(60% 45% at 88% -5%, rgba(255,215,106,.16), transparent 70%),
+   repeating-linear-gradient(90deg, rgba(43,130,67,.10) 0 64px, rgba(43,130,67,.04) 64px 128px),
+   var(--ink)}
+.screen[hidden]{display:none!important}
+.wrap{width:100%;max-width:1080px;display:flex;flex-direction:column;gap:22px}
+.eyebrow{font-size:12px;letter-spacing:.18em;color:var(--flood);font-weight:600}
+h1,h2{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance;line-height:1.05}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 26px;border-radius:6px;font-weight:700;font-size:16px;letter-spacing:.02em;transition:transform .12s, background .2s}
+.btn-main{background:var(--flood);color:var(--flood-ink)}
+.btn-main:hover{transform:translateY(-1px);background:#ffe08a}
+.btn-ghost{border:1px solid var(--line);color:var(--chalk);background:rgba(255,255,255,.02)}
+.btn-ghost:hover{border-color:var(--mute)}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+
+/* Title */
+#title{justify-content:center}
+.hero{display:flex;flex-direction:column;align-items:flex-start;gap:18px;max-width:760px;width:100%}
+.hero h1{font-size:clamp(56px,13vw,132px);letter-spacing:-.01em}
+.hero h1 span{display:block;color:var(--flood)}
+.hero p{margin:0;color:var(--mute);max-width:46ch}
+.hero .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
+.spec{display:flex;gap:22px;flex-wrap:wrap;font-family:var(--f-num);font-size:15px;letter-spacing:.06em;color:var(--chalk);border-top:1px solid var(--line);padding-top:16px;margin-top:12px;width:100%}
+.spec b{color:var(--flood);font-weight:800;font-size:22px;margin-right:6px}
+
+/* Select */
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.head h2{font-size:clamp(32px,6vw,52px)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.card{position:relative;text-align:left;background:var(--ink-2);border:1px solid var(--line);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:10px;transition:border-color .2s, transform .15s, opacity .3s;min-width:0}
+.card:hover{border-color:var(--mute);transform:translateY(-2px)}
+.card.on{border-color:var(--flood);box-shadow:0 0 0 1px var(--flood) inset}
+.card.dim{opacity:.35}
+.card.lit{border-color:var(--flood);box-shadow:0 0 0 2px var(--flood), 0 0 28px rgba(255,215,106,.25)}
+.flag{width:100%;aspect-ratio:3/2;border-radius:3px;overflow:hidden;display:block;box-shadow:0 1px 0 rgba(255,255,255,.08) inset}
+.flag svg{width:100%;height:100%;display:block}
+.card .nm{font-family:var(--f-display);font-size:26px;line-height:1}
+.card .stars{color:var(--flood);letter-spacing:2px;font-size:13px;min-height:18px}
+.card .tag{font-size:13px;color:var(--mute);line-height:1.4}
+.card .key{font-size:13px;border-top:1px solid var(--line);padding-top:8px}
+.card .key em{font-style:normal;color:var(--mute);margin-right:6px}
+.opts{display:flex;gap:24px;flex-wrap:wrap;align-items:center}
+.seg{display:flex;flex-direction:column;gap:6px}
+.seg label{font-size:12px;color:var(--mute);letter-spacing:.08em}
+.seg .bar{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{padding:8px 16px;font-size:14px;color:var(--mute)}
+.seg button[aria-pressed="true"]{background:var(--chalk);color:var(--ink);font-weight:700}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.note{font-size:12px;color:var(--mute)}
+
+/* Draw */
+.vs{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px}
+.side{display:flex;flex-direction:column;gap:10px;align-items:center;text-align:center;min-width:0}
+.side .flag{max-width:220px}
+.side .nm{font-family:var(--f-display);font-size:clamp(28px,6vw,46px);line-height:1}
+.side .who{font-size:12px;letter-spacing:.14em;color:var(--mute)}
+.vsmark{font-family:var(--f-num);font-weight:800;font-size:clamp(28px,6vw,48px);color:var(--flood)}
+.slot .flag{transition:filter .2s}
+.slot.spin .flag{filter:blur(1.5px) brightness(1.2)}
+.lineups{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.xi{background:var(--ink-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;min-width:0}
+.xi h3{margin:0 0 8px;font-size:14px;letter-spacing:.06em;color:var(--flood);font-weight:700}
+.xi ol{list-style:none;margin:0;padding:0;display:grid;gap:3px;font-size:14px}
+.xi li{display:grid;grid-template-columns:34px 1fr;gap:8px;align-items:baseline;min-width:0}
+.xi li span{font-family:var(--f-num);font-size:12px;color:var(--mute);letter-spacing:.08em}
+.xi li b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reveal{opacity:0;transform:translateY(6px);transition:opacity .4s, transform .4s}
+.reveal.show{opacity:1;transform:none}
+
+/* Match */
+#match{padding:0;overflow:hidden;background:var(--ink)}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.hud{position:absolute;top:10px;left:10px;display:flex;align-items:stretch;background:rgba(8,17,13,.88);border:1px solid var(--line);border-radius:6px;overflow:hidden;font-family:var(--f-num);font-weight:800;pointer-events:none}
+.hud .t{display:flex;align-items:center;gap:7px;padding:5px 10px;font-size:17px;letter-spacing:.05em}
+.hud .chip{width:20px;height:14px;border-radius:2px;overflow:hidden;display:block}
+.hud .chip svg{width:100%;height:100%;display:block}
+.hud .sc{background:var(--chalk);color:var(--ink);padding:5px 10px;font-size:20px;font-variant-numeric:tabular-nums;display:flex;align-items:center}
+.hud .clk{background:var(--flood);color:var(--flood-ink);padding:5px 10px;font-size:17px;font-variant-numeric:tabular-nums;display:flex;align-items:center;min-width:46px;justify-content:center}
+#mini{position:absolute;top:10px;right:56px;width:150px;height:98px;border:1px solid var(--line);border-radius:4px;background:rgba(8,17,13,.7);pointer-events:none}
+#pauseBtn{position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:6px;background:rgba(8,17,13,.88);border:1px solid var(--line);display:grid;place-items:center}
+#pauseBtn i{display:block;width:12px;height:14px;border-left:4px solid var(--chalk);border-right:4px solid var(--chalk)}
+#comm{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:rgba(8,17,13,.85);border-left:3px solid var(--flood);padding:7px 14px;font-size:14px;font-weight:600;border-radius:3px;max-width:calc(100% - 32px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity .4s;pointer-events:none}
+#banner{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+#banner div{font-family:var(--f-display);font-size:clamp(64px,16vw,170px);color:var(--flood);text-shadow:0 6px 0 rgba(0,0,0,.45);line-height:1;text-align:center}
+#banner small{display:block;font-family:var(--f-body);font-weight:700;font-size:clamp(15px,3.2vw,22px);color:var(--chalk);margin-top:10px;text-shadow:0 2px 6px rgba(0,0,0,.6)}
+#banner .pop{animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+#rotHint{position:absolute;left:50%;top:58px;transform:translateX(-50%);font-size:12px;color:var(--mute);background:rgba(8,17,13,.8);padding:4px 10px;border-radius:3px;pointer-events:none;white-space:nowrap}
+#overlay{position:absolute;inset:0;background:rgba(5,10,8,.82);display:grid;place-items:center;padding-inline:16px}
+#overlay .box{background:var(--ink-2);border:1px solid var(--line);border-radius:10px;padding:22px;max-width:420px;width:100%;display:flex;flex-direction:column;gap:14px}
+#overlay h2{font-size:34px}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;font-size:14px;align-items:center}
+kbd{font-family:var(--f-num);font-weight:800;font-size:13px;letter-spacing:.04em;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:1px 7px;background:var(--ink);white-space:nowrap}
+.box .row{display:flex;gap:10px;flex-wrap:wrap}
+
+/* Touch controls */
+#touch{position:absolute;inset:0;pointer-events:none}
+#stick{position:absolute;left:18px;bottom:22px;width:128px;height:128px;border-radius:50%;border:2px solid rgba(238,243,234,.25);background:rgba(8,17,13,.35);pointer-events:auto;touch-action:none}
+#knob{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;background:rgba(238,243,234,.55)}
+.tb{position:absolute;pointer-events:auto;touch-action:none;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px;background:rgba(8,17,13,.55);border:2px solid rgba(238,243,234,.35);user-select:none;-webkit-user-select:none}
+.tb.down{background:rgba(255,215,106,.4)}
+#tShoot{right:18px;bottom:28px;width:78px;height:78px;border-color:var(--flood);color:var(--flood);font-size:16px}
+#tPass{right:106px;bottom:20px;width:64px;height:64px}
+#tSprint{right:28px;bottom:118px;width:58px;height:58px;font-size:13px}
+#tSwitch{right:100px;bottom:100px;width:52px;height:52px;font-size:12px}
+
+/* Result */
+#result{justify-content:center}
+.final{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;text-align:center}
+.final .nm{font-family:var(--f-display);font-size:clamp(24px,5vw,40px);line-height:1.05}
+.final .flag{max-width:140px;margin-inline:auto}
+.final .num{font-family:var(--f-num);font-weight:800;font-size:clamp(64px,15vw,128px);line-height:1;font-variant-numeric:tabular-nums}
+.final .num span{color:var(--mute);margin-inline:6px}
+.verdict{font-family:var(--f-display);font-size:clamp(30px,6vw,52px);color:var(--flood);text-align:center}
+.scorers{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.scorers ul{list-style:none;margin:0;padding:12px 14px;background:var(--ink-2);border:1px solid var(--line);border-radius:8px;font-size:14px;display:grid;gap:4px;min-height:48px;min-width:0}
+.scorers li span{font-family:var(--f-num);color:var(--flood);margin-right:8px}
+.scorers .none{color:var(--mute)}
+.center{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+@media (max-width:560px){
+  .lineups,.scorers{grid-template-columns:1fr}
+  .vs{gap:10px}
+  #mini{width:110px;height:72px}
+  .hud .t{padding:4px 7px;font-size:14px}
+  .hud .sc{font-size:17px;padding:4px 8px}
+  .hud .clk{font-size:14px;padding:4px 7px;min-width:38px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div id="app">
+
+  <!-- TITLE -->
+  <section class="screen" id="title">
+    <div class="hero">
+      <div class="eyebrow">2026 가을 A매치</div>
+      <h1>국가대표<span>매치데이</span></h1>
+      <p>축구 강국 5개국 중 하나를 골라 11 대 11 실시간 경기를 치르세요. 상대 국가는 추첨으로 정해집니다.</p>
+      <div class="row">
+        <button class="btn btn-main" id="startBtn">게임 시작</button>
+        <button class="btn btn-ghost" id="helpBtn">조작법</button>
+      </div>
+      <div class="spec"><span><b>5</b>개 국가</span><span><b>11</b>대 11</span><span><b>90</b>분 경기</span><span><b>16</b>회 월드컵 우승 합계</span></div>
+    </div>
+  </section>
+
+  <!-- SELECT -->
+  <section class="screen" id="select" hidden>
+    <div class="wrap">
+      <div class="head">
+        <div>
+          <div class="eyebrow">1단계</div>
+          <h2>국가를 선택하세요</h2>
+        </div>
+        <button class="btn btn-ghost" id="backTitle">처음으로</button>
+      </div>
+      <div class="grid" id="teamGrid"></div>
+      <div class="opts">
+        <div class="seg"><label>경기 시간</label><div class="bar" id="lenSeg">
+          <button data-v="180" aria-pressed="false">3분</button>
+          <button data-v="300" aria-pressed="true">5분</button>
+          <button data-v="480" aria-pressed="false">8분</button></div></div>
+        <div class="seg"><label>난이도</label><div class="bar" id="difSeg">
+          <button data-v="easy" aria-pressed="false">쉬움</button>
+          <button data-v="normal" aria-pressed="true">보통</button>
+          <button data-v="hard" aria-pressed="false">어려움</button></div></div>
+      </div>
+      <div class="foot">
+        <span class="note">선수 명단은 2026년 9~10월 대표팀 소집 명단과 2026 월드컵 명단을 바탕으로 했습니다.</span>
+        <button class="btn btn-main" id="pickBtn" disabled>상대 추첨하기</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- DRAW -->
+  <section class="screen" id="draw" hidden>
+    <div class="wrap">
+      <div class="head">
+        <div>
+          <div class="eyebrow">2단계</div>
+          <h2 id="drawTitle">상대 국가 추첨 중…</h2>
+        </div>
+        <button class="btn btn-ghost" id="backSelect">국가 다시 고르기</button>
+      </div>
+      <div class="vs">
+        <div class="side"><div class="who">내 팀</div><div class="flag" id="myFlag"></div><div class="nm" id="myName"></div></div>
+        <div class="vsmark">VS</div>
+        <div class="side slot" id="slot"><div class="who">상대 팀</div><div class="flag" id="opFlag"></div><div class="nm" id="opName"></div></div>
+      </div>
+      <div class="lineups reveal" id="lineups">
+        <div class="xi"><h3 id="xiA"></h3><ol id="listA"></ol></div>
+        <div class="xi"><h3 id="xiB"></h3><ol id="listB"></ol></div>
+      </div>
+      <div class="center reveal" id="kickWrap"><button class="btn btn-main" id="kickBtn">킥오프</button></div>
+    </div>
+  </section>
+
+  <!-- MATCH -->
+  <section class="screen" id="match" hidden>
+    <canvas id="cv"></canvas>
+    <div class="hud">
+      <div class="t"><span class="chip" id="hA"></span><span id="hAn"></span></div>
+      <div class="sc" id="hScore">0 - 0</div>
+      <div class="t"><span id="hBn"></span><span class="chip" id="hB"></span></div>
+      <div class="clk" id="hClock">0'</div>
+    </div>
+    <canvas id="mini"></canvas>
+    <button id="pauseBtn" aria-label="일시정지"><i></i></button>
+    <div id="rotHint" hidden>가로로 돌리면 경기장이 더 넓게 보여요</div>
+    <div id="comm" style="opacity:0"></div>
+    <div id="banner"></div>
+    <div id="touch" hidden>
+      <div id="stick"><div id="knob"></div></div>
+      <div class="tb" id="tPass" data-k="pass">패스</div>
+      <div class="tb" id="tShoot" data-k="shoot">슈팅</div>
+      <div class="tb" id="tSprint" data-k="sprint">질주</div>
+      <div class="tb" id="tSwitch" data-k="switch">교체</div>
+    </div>
+    <div id="overlay" hidden>
+      <div class="box">
+        <h2>일시정지</h2>
+        <div class="keys" id="keysPause"></div>
+        <div class="row"><button class="btn btn-main" id="resumeBtn">계속하기</button><button class="btn btn-ghost" id="quitBtn">경기 포기</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section class="screen" id="result" hidden>
+    <div class="wrap" style="max-width:760px">
+      <div class="eyebrow" style="text-align:center">경기 종료</div>
+      <div class="verdict" id="verdict"></div>
+      <div class="final">
+        <div><div class="flag" id="rA"></div><div class="nm" id="rAn" style="margin-top:10px"></div></div>
+        <div class="num" id="rScore"></div>
+        <div><div class="flag" id="rB"></div><div class="nm" id="rBn" style="margin-top:10px"></div></div>
+      </div>
+      <div class="scorers"><ul id="sA"></ul><ul id="sB"></ul></div>
+      <div class="center">
+        <button class="btn btn-main" id="againBtn">새 상대와 다시 하기</button>
+        <button class="btn btn-ghost" id="toSelect">국가 선택으로</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- HELP -->
+  <div id="help" class="screen" hidden style="justify-content:center;background:rgba(5,10,8,.92)">
+    <div class="box" style="background:var(--ink-2);border:1px solid var(--line);border-radius:10px;padding:22px;max-width:440px;width:100%;display:flex;flex-direction:column;gap:14px">
+      <h2 style="font-size:34px">조작법</h2>
+      <div class="keys" id="keysHelp"></div>
+      <p class="note" style="margin:0">휴대폰에서는 화면 왼쪽 스틱과 오른쪽 버튼으로 조작합니다. 내 팀은 왼쪽에서 오른쪽으로 공격합니다.</p>
+      <button class="btn btn-main" id="helpClose">확인</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- Data ---------- */
+const FLAGS = {
+  esp:'<svg viewBox="0 0 30 20" preserveAspectRatio="none"><rect width="30" height="20" fill="#c60b1e"/><rect y="5" width="30" height="10" fill="#ffc400"/></svg>',
+  fra:'<svg viewBox="0 0 30 20" preserveAspectRatio="none"><rect width="10" height="20" fill="#002395"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#ed2939"/></svg>',
+  ger:'<svg viewBox="0 0 30 20" preserveAspectRatio="none"><rect width="30" height="7" fill="#000"/><rect y="6.6" width="30" height="7" fill="#dd0000"/><rect y="13.3" width="30" height="6.7" fill="#ffce00"/></svg>',
+  arg:'<svg viewBox="0 0 30 20" preserveAspectRatio="none"><rect width="30" height="20" fill="#74acdf"/><rect y="6.67" width="30" height="6.67" fill="#fff"/><circle cx="15" cy="10" r="2.3" fill="#f6b40e"/></svg>',
+  bra:'<svg viewBox="0 0 30 20" preserveAspectRatio="none"><rect width="30" height="20" fill="#009c3b"/><polygon points="15,2.2 27.5,10 15,17.8 2.5,10" fill="#ffdf00"/><circle cx="15" cy="10" r="4.4" fill="#002776"/></svg>'
+};
+// order: GK, LB, LCB, RCB, RB, LM, CM, RM, LW, ST, RW
+const TEAMS = {
+  esp:{name:'스페인',code:'ESP',stars:2,tag:'2026 월드컵 챔피언',key:'라민 야말',rating:89,
+    kit:'#c60b1e',alt:'#f3efe2',gk:'#20a464',
+    xi:['우나이 시몬','마르크 쿠쿠레야','딘 하위선','파우 쿠바르시','페드로 포로','페드리','로드리','파비안 루이스','니코 윌리엄스','미켈 오야르사발','라민 야말']},
+  arg:{name:'아르헨티나',code:'ARG',stars:3,tag:'2026 월드컵 준우승',key:'라우타로 마르티네스',rating:87,
+    kit:'#74acdf',alt:'#1b2a5c',gk:'#8a3ccf',stripes:true,
+    xi:['에밀리아노 마르티네스','니콜라스 탈리아피코','리산드로 마르티네스','크리스티안 로메로','나우엘 몰리나','알렉시스 막알리스테르','엔소 페르난데스','티아고 알마다','니코 파스','라우타로 마르티네스','훌리안 알바레스']},
+  fra:{name:'프랑스',code:'FRA',stars:2,tag:'월드컵 결승 단골, 새 감독 체제',key:'킬리안 음바페',rating:88,
+    kit:'#1b2a6b',alt:'#f4f4f4',gk:'#e8a317',
+    xi:['마이크 메냥','테오 에르난데스','윌리엄 살리바','다요 우파메카노','쥘 쿤데','마누 코네','오렐리앵 추아메니','워렌 자이르에메리','브래들리 바르콜라','킬리안 음바페','우스만 뎀벨레']},
+  ger:{name:'독일',code:'GER',stars:4,tag:'전차 군단의 재건',key:'플로리안 비르츠',rating:86,
+    kit:'#f2f2f2',alt:'#1f1f22',gk:'#d6c21b',
+    xi:['올리버 바우만','다비트 라움','니코 슐로터베크','요나탄 타','요주아 키미히','플로리안 비르츠','알렉산다르 파블로비치','자말 무시알라','르로이 자네','카이 하베르츠','레나르트 카를']},
+  bra:{name:'브라질',code:'BRA',stars:5,tag:'안첼로티의 세대교체',key:'비니시우스 주니오르',rating:86,
+    kit:'#ffd400',alt:'#1b4fbf',gk:'#2a2a2a',
+    xi:['위구 소우자','두글라스 산투스','가브리엘 마갈량이스','마르키뉴스','웨슬리','브루누 기마랑이스','조앙 페드루','에스테방','비니시우스 주니오르','엔드릭','하피냐']}
+};
+const ORDER = ['esp','arg','fra','ger','bra'];
+const POS = ['GK','LB','CB','CB','RB','CM','DM','CM','LW','ST','RW'];
+const NUMS = [1,3,4,5,2,8,6,10,11,9,7];
+const FORM = [[0.035,0.5],[0.21,0.15],[0.18,0.38],[0.18,0.62],[0.21,0.85],[0.42,0.27],[0.35,0.5],[0.42,0.73],[0.67,0.2],[0.74,0.5],[0.67,0.8]];
+const DIFF = {easy:{spd:0.9,steal:0.9,save:-0.14,think:1.5},normal:{spd:1,steal:1.5,save:0,think:1},hard:{spd:1.07,steal:2.3,save:0.08,think:0.65}};
+
+const KEYS = [['방향키 / WASD','이동'],['J','패스 · 수비 시 태클'],['K','슈팅 (길게 누를수록 강하게)'],['Shift','질주'],['Space','선수 교체 (수비 시)'],['P / Esc','일시정지']];
+
+/* ---------- DOM helpers ---------- */
+const $ = id => document.getElementById(id);
+const screens = ['title','select','draw','match','result'];
+function show(id){ screens.forEach(s => $(s).hidden = s!==id); }
+function keysHtml(){ return KEYS.map(k=>`<kbd>${k[0]}</kbd><span>${k[1]}</span>`).join(''); }
+$('keysHelp').innerHTML = keysHtml(); $('keysPause').innerHTML = keysHtml();
+
+const cfg = {mine:null, opp:null, len:300, diff:'normal'};
+
+/* Title */
+$('startBtn').onclick = ()=>show('select');
+$('helpBtn').onclick = ()=>{$('help').hidden=false;};
+$('helpClose').onclick = ()=>{$('help').hidden=true;};
+$('backTitle').onclick = ()=>show('title');
+
+/* Select */
+function cardHtml(k){
+  const t = TEAMS[k];
+  return `<button class="card" data-k="${k}" aria-pressed="false">
+    <span class="flag">${FLAGS[k]}</span>
+    <span class="nm">${t.name}</span>
+    <span class="stars" aria-label="월드컵 우승 ${t.stars}회">${'★'.repeat(t.stars)}</span>
+    <span class="tag">${t.tag}</span>
+    <span class="key"><em>핵심</em>${t.key}</span></button>`;
+}
+$('teamGrid').innerHTML = ORDER.map(cardHtml).join('');
+$('teamGrid').addEventListener('click', e=>{
+  const c = e.target.closest('.card'); if(!c) return;
+  cfg.mine = c.dataset.k;
+  document.querySelectorAll('#teamGrid .card').forEach(x=>{x.classList.toggle('on',x===c);x.setAttribute('aria-pressed',x===c)});
+  $('pickBtn').disabled = false;
+});
+function segInit(id,key){
+  $(id).addEventListener('click',e=>{
+    const b=e.target.closest('button'); if(!b) return;
+    $(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+    cfg[key] = key==='len' ? +b.dataset.v : b.dataset.v;
+  });
+}
+segInit('lenSeg','len'); segInit('difSeg','diff');
+$('pickBtn').onclick = startDraw;
+$('backSelect').onclick = ()=>{ clearTimeout(drawTimer); show('select'); };
+
+/* Draw */
+let drawTimer=null;
+function startDraw(){
+  show('draw');
+  const me = TEAMS[cfg.mine];
+  $('myFlag').innerHTML = FLAGS[cfg.mine]; $('myName').textContent = me.name;
+  $('lineups').classList.remove('show'); $('kickWrap').classList.remove('show');
+  $('drawTitle').textContent = '상대 국가 추첨 중…';
+  const pool = ORDER.filter(k=>k!==cfg.mine);
+  const final = pool[Math.floor(Math.random()*pool.length)];
+  cfg.opp = final;
+  const slot = $('slot'); slot.classList.add('spin');
+  let i = Math.floor(Math.random()*pool.length), steps = 14 + pool.indexOf(final) - (i%pool.length) + pool.length*1;
+  let delay = 60;
+  const tick = ()=>{
+    const k = pool[i%pool.length];
+    $('opFlag').innerHTML = FLAGS[k]; $('opName').textContent = TEAMS[k].name;
+    i++; steps--;
+    if(steps<=0 || (steps<5 && pool[(i-1)%pool.length]===final && steps<3)){
+      $('opFlag').innerHTML = FLAGS[final]; $('opName').textContent = TEAMS[final].name;
+      slot.classList.remove('spin');
+      $('drawTitle').textContent = `상대는 ${TEAMS[final].name}입니다`;
+      fillLineups();
+      setTimeout(()=>{$('lineups').classList.add('show');$('kickWrap').classList.add('show');$('kickBtn').focus({preventScroll:true});},120);
+      return;
+    }
+    delay *= 1.11;
+    drawTimer = setTimeout(tick, delay);
+  };
+  tick();
+}
+function fillLineups(){
+  const a=TEAMS[cfg.mine], b=TEAMS[cfg.opp];
+  $('xiA').textContent = `${a.name} 선발 11`; $('xiB').textContent = `${b.name} 선발 11`;
+  const li = t => t.xi.map((n,i)=>`<li><span>${POS[i]}</span><b>${n}</b></li>`).join('');
+  $('listA').innerHTML = li(a); $('listB').innerHTML = li(b);
+}
+$('kickBtn').onclick = ()=>{ show('match'); startMatch(); };
+
+/* Result */
+$('againBtn').onclick = ()=>startDraw();
+$('toSelect').onclick = ()=>show('select');
+
+/* ---------- Game ---------- */
+const W=1050, H=680, GY=H/2, GH=36.6, M=120;
+const cv=$('cv'), ctx=cv.getContext('2d');
+const mini=$('mini'), mctx=mini.getContext('2d');
+let G=null, raf=0, last=0, acc=0, paused=false;
+let dpr=1, cw=0, ch=0, scale=1;
+const cam={x:W/2,y:H/2};
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const hyp=Math.hypot;
+
+function hexRgb(h){h=h.replace('#','');return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+function lum(h){const [r,g,b]=hexRgb(h);return (0.299*r+0.587*g+0.114*b)/255;}
+function cdist(a,b){const x=hexRgb(a),y=hexRgb(b);return hyp(x[0]-y[0],x[1]-y[1],x[2]-y[2]);}
+function shade(h,f){const [r,g,b]=hexRgb(h);const m=v=>Math.round(clamp(v*f,0,255));return `rgb(${m(r)},${m(g)},${m(b)})`;}
+
+/* Pitch prerender */
+const PR=1.6, pitch=document.createElement('canvas');
+function buildPitch(){
+  pitch.width=(W+2*M)*PR; pitch.height=(H+2*M)*PR;
+  const p=pitch.getContext('2d'); p.scale(PR,PR); p.translate(M,M);
+  // surround
+  p.fillStyle='#0d2417'; p.fillRect(-M,-M,W+2*M,H+2*M);
+  // crowd
+  const cols=['#2a3a33','#3b2c2c','#33354a','#4a4430','#2e2e2e','#5a4a3a'];
+  for(let i=0;i<5200;i++){
+    let x=rnd(-M,W+M), y=rnd(-M,H+M);
+    if(x>-78&&x<W+78&&y>-78&&y<H+78) continue;
+    p.fillStyle=cols[i%cols.length]; p.beginPath(); p.arc(x,y,rnd(1.6,2.6),0,7); p.fill();
+  }
+  // track
+  p.fillStyle='#1d5532'; p.fillRect(-72,-72,W+144,H+144);
+  // boards
+  const boards=['국가대표 매치데이','2026 가을 A매치','국가대표 매치데이','FAIR PLAY'];
+  p.font='600 9px "IBM Plex Sans KR", sans-serif'; p.textBaseline='middle'; p.textAlign='center';
+  for(let x=-60,i=0;x<W+60;x+=140,i++){
+    for(const y of [-62,H+50]){
+      p.fillStyle=i%2?'#132a20':'#1b1b1b'; p.fillRect(x,y,136,12);
+      p.fillStyle=i%2?'#ffd76a':'#eef3ea'; p.fillText(boards[i%boards.length],x+68,y+6.5);
+    }
+  }
+  // grass stripes
+  for(let i=0;i<14;i++){ p.fillStyle=i%2?'#2a7f41':'#31904a'; p.fillRect(-40+i*80,-40,80,H+80); }
+  // grain
+  for(let i=0;i<9000;i++){ p.fillStyle=`rgba(0,0,0,${rnd(0.02,0.06)})`; p.fillRect(rnd(-40,W+40),rnd(-40,H+40),1.2,1.2); }
+  // lines
+  p.strokeStyle='rgba(240,246,236,.9)'; p.lineWidth=2.2;
+  p.strokeRect(0,0,W,H);
+  p.beginPath(); p.moveTo(W/2,0); p.lineTo(W/2,H); p.stroke();
+  p.beginPath(); p.arc(W/2,GY,91.5,0,7); p.stroke();
+  p.fillStyle='rgba(240,246,236,.9)';
+  p.beginPath(); p.arc(W/2,GY,3,0,7); p.fill();
+  for(const s of [0,1]){
+    const x0 = s?W:0, d = s?-1:1;
+    p.strokeRect(s?W-165:0, GY-201.5, 165, 403);
+    p.strokeRect(s?W-55:0, GY-91.5, 55, 183);
+    p.beginPath(); p.arc(x0+d*110,GY,3,0,7); p.fill();
+    p.beginPath(); const a=Math.acos(55/91.5);
+    if(s) p.arc(W-110,GY,91.5,Math.PI-a,Math.PI+a); else p.arc(110,GY,91.5,-a,a);
+    p.stroke();
+    for(const yy of [0,H]){ p.beginPath(); p.arc(x0,yy,10, yy?(s?Math.PI:1.5*Math.PI):(s?0.5*Math.PI:0), yy?(s?1.5*Math.PI:2*Math.PI):(s?Math.PI:0.5*Math.PI)); p.stroke(); }
+    // goal + net
+    const gx=s?W:-22;
+    p.fillStyle='rgba(255,255,255,.08)'; p.fillRect(gx,GY-GH,22,GH*2);
+    p.strokeStyle='rgba(240,246,236,.35)'; p.lineWidth=0.7;
+    for(let y=GY-GH;y<=GY+GH;y+=5){p.beginPath();p.moveTo(gx,y);p.lineTo(gx+22,y);p.stroke();}
+    for(let x=gx;x<=gx+22;x+=5){p.beginPath();p.moveTo(x,GY-GH);p.lineTo(x,GY+GH);p.stroke();}
+    p.strokeStyle='#ffffff'; p.lineWidth=3;
+    p.beginPath(); p.moveTo(x0,GY-GH); p.lineTo(s?W+22:-22,GY-GH); p.lineTo(s?W+22:-22,GY+GH); p.lineTo(x0,GY+GH); p.stroke();
+    p.lineWidth=2.2; p.strokeStyle='rgba(240,246,236,.9)'; p.fillStyle='rgba(240,246,236,.9)';
+  }
+}
+buildPitch();
+
+/* Sizing */
+function resize(){
+  dpr=Math.min(window.devicePixelRatio||1,2);
+  cw=cv.clientWidth; ch=cv.clientHeight;
+  cv.width=Math.round(cw*dpr); cv.height=Math.round(ch*dpr);
+  scale=clamp(Math.min(cw/760, ch/500),0.42,2.4);
+  const mw=mini.clientWidth, mh=mini.clientHeight;
+  mini.width=mw*dpr; mini.height=mh*dpr;
+  const coarse = matchMedia('(pointer: coarse)').matches;
+  $('rotHint').hidden = !(coarse && ch>cw);
+}
+addEventListener('resize',()=>{ if(!$('match').hidden) resize(); });
+
+/* Input */
+const keys=new Set();
+const btn={pass:false,shoot:false,sprint:false,switch:false};
+const edge={pass:false,shootUp:false,switch:false};
+const stick={x:0,y:0};
+addEventListener('keydown',e=>{
+  if($('match').hidden) return;
+  const k=e.key.toLowerCase();
+  if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)) e.preventDefault();
+  if(k==='p'||k==='escape'){ togglePause(); return; }
+  if(e.repeat) return;
+  keys.add(k);
+  if(k==='j') edge.pass=true;
+  if(k===' ') edge.switch=true;
+});
+addEventListener('keyup',e=>{
+  const k=e.key.toLowerCase(); keys.delete(k);
+  if(k==='k') edge.shootUp=true;
+});
+addEventListener('blur',()=>{keys.clear();});
+function inputDir(){
+  let x=0,y=0;
+  if(keys.has('arrowleft')||keys.has('a')) x-=1;
+  if(keys.has('arrowright')||keys.has('d')) x+=1;
+  if(keys.has('arrowup')||keys.has('w')) y-=1;
+  if(keys.has('arrowdown')||keys.has('s')) y+=1;
+  x+=stick.x; y+=stick.y;
+  const m=hyp(x,y); if(m<0.18) return {x:0,y:0,m:0};
+  return {x:x/m,y:y/m,m:Math.min(1,m)};
+}
+const shootHeld=()=>keys.has('k')||btn.shoot;
+const sprintHeld=()=>keys.has('shift')||btn.sprint;
+
+/* Touch */
+(function(){
+  const st=$('stick'), kn=$('knob'); let id=null, cx=0, cy=0;
+  const R=52;
+  st.addEventListener('pointerdown',e=>{id=e.pointerId;st.setPointerCapture(id);const r=st.getBoundingClientRect();cx=r.left+r.width/2;cy=r.top+r.height/2;move(e);});
+  st.addEventListener('pointermove',e=>{if(e.pointerId===id)move(e);});
+  const up=e=>{if(e.pointerId!==id)return;id=null;stick.x=stick.y=0;kn.style.transform='';};
+  st.addEventListener('pointerup',up); st.addEventListener('pointercancel',up);
+  function move(e){let dx=e.clientX-cx,dy=e.clientY-cy;const m=hyp(dx,dy);if(m>R){dx*=R/m;dy*=R/m;}kn.style.transform=`translate(${dx}px,${dy}px)`;stick.x=dx/R;stick.y=dy/R;}
+  document.querySelectorAll('.tb').forEach(b=>{
+    const k=b.dataset.k;
+    b.addEventListener('pointerdown',e=>{e.preventDefault();b.setPointerCapture(e.pointerId);btn[k]=true;b.classList.add('down');if(k==='pass')edge.pass=true;if(k==='switch')edge.switch=true;});
+    const rel=()=>{if(!btn[k])return;btn[k]=false;b.classList.remove('down');if(k==='shoot')edge.shootUp=true;};
+    b.addEventListener('pointerup',rel); b.addEventListener('pointercancel',rel);
+  });
+  const enable=()=>{$('touch').hidden=false;};
+  if(matchMedia('(pointer: coarse)').matches) enable();
+  addEventListener('touchstart',enable,{once:true,passive:true});
+})();
+
+/* Pause */
+function togglePause(force){
+  if(!G||G.state==='over') return;
+  paused = force!==undefined?force:!paused;
+  $('overlay').hidden=!paused;
+  keys.clear();
+  if(!paused){ last=performance.now(); }
+}
+$('pauseBtn').onclick=()=>togglePause(true);
+$('resumeBtn').onclick=()=>togglePause(false);
+$('quitBtn').onclick=()=>{ paused=false; $('overlay').hidden=true; cancelAnimationFrame(raf); G=null; show('select'); };
+
+/* Commentary */
+let commT=0;
+function say(msg){ const c=$('comm'); c.textContent=msg; c.style.opacity=1; commT=2.6; }
+function banner(big,small){ $('banner').innerHTML = big?`<div class="pop">${big}${small?`<small>${small}</small>`:''}</div>`:''; }
+
+/* Setup */
+function startMatch(){
+  const A=TEAMS[cfg.mine], B=TEAMS[cfg.opp];
+  let kitA=A.kit, kitB=B.kit, stripesA=!!A.stripes, stripesB=!!B.stripes;
+  if(cdist(kitA,kitB)<170 || (stripesA&&lum(kitB)>0.8) || (stripesB&&lum(kitA)>0.8)){ kitB=B.alt; stripesB=false; }
+  G={
+    teams:[{t:A,k:cfg.mine,kit:kitA,stripes:stripesA,gk:A.gk},{t:B,k:cfg.opp,kit:kitB,stripes:stripesB,gk:B.gk}],
+    diff:DIFF[cfg.diff], len:cfg.len, elapsed:0, half:false,
+    score:[0,0], scorers:[[],[]], players:[], ball:null, ctrl:null,
+    state:'kick', stateT:1.2, switchT:0, charge:-1, autoT:0
+  };
+  for(let tm=0;tm<2;tm++){
+    const T=G.teams[tm].t;
+    const spd = 0.94 + (T.rating-84)*0.012;
+    for(let i=0;i<11;i++){
+      G.players.push({team:tm,i,name:T.xi[i],no:NUMS[i],isGK:i===0,x:0,y:0,vx:0,vy:0,fx:tm?-1:1,fy:0,
+        stun:0,kickCd:0,touchCd:0,protect:0,recv:0,decT:rnd(0,.3),hold:0,setPiece:false,stamina:1,phase:rnd(0,6),
+        spd:128*spd*(tm===1?G.diff.spd:1)});
+    }
+  }
+  G.ball={x:W/2,y:GY,z:0,vx:0,vy:0,vz:0,owner:null,lastTouch:0,lastKicker:null,passTo:null};
+  $('hA').innerHTML=FLAGS[cfg.mine]; $('hB').innerHTML=FLAGS[cfg.opp];
+  $('hAn').textContent=A.code; $('hBn').textContent=B.code;
+  paused=false; $('overlay').hidden=true; banner('');
+  resize();
+  kickoff(0);
+  say(`${A.name} 대 ${B.name}, 경기 시작합니다!`);
+  cancelAnimationFrame(raf); last=performance.now(); acc=0; raf=requestAnimationFrame(loop);
+}
+const teamP = tm => G.players.filter(p=>p.team===tm);
+const relX = (tm,x)=> tm===0 ? x/W : 1-x/W;
+const absX = (tm,r)=> tm===0 ? r*W : (1-r)*W;
+const baseY = p => (p.team===0?FORM[p.i][1]:1-FORM[p.i][1])*H;
+
+function kickoff(tm){
+  const b=G.ball;
+  for(const p of G.players){
+    let r=FORM[p.i][0]*0.62; r=Math.min(r,0.44);
+    if(p.team!==tm && p.i>=8) r=Math.min(r,0.40);
+    p.x=absX(p.team,r); p.y=baseY(p); p.vx=p.vy=0; p.stun=0; p.setPiece=false; p.recv=0; p.hold=0;
+    p.fx=p.team?-1:1; p.fy=0;
+  }
+  const st=G.players.find(p=>p.team===tm&&p.i===9);
+  st.x=W/2 - (tm?-1:1)*10; st.y=GY;
+  const sup=G.players.find(p=>p.team===tm&&p.i===8); sup.x=W/2-(tm?-1:1)*30; sup.y=GY-60;
+  b.x=W/2; b.y=GY; b.vx=b.vy=b.z=b.vz=0; b.passTo=null;
+  setOwner(st); st.protect=1.6;
+  G.ctrl = tm===0 ? st : nearestTo(0,b.x,b.y,true);
+  G.state='kick'; G.stateT=1.0;
+  cam.x=W/2; cam.y=GY;
+}
+function nearestTo(tm,x,y,noGK,exclude){
+  let best=null,bd=1e9;
+  for(const p of G.players){ if(p.team!==tm||(noGK&&p.isGK)||p===exclude) continue; const d=hyp(p.x-x,p.y-y); if(d<bd){bd=d;best=p;} }
+  return best;
+}
+function setOwner(p){
+  const b=G.ball;
+  b.owner=p; b.lastTouch=p.team; b.passTo=null; b.vz=0; b.z=0;
+  p.protect=Math.max(p.protect,0.35); p.hold=0;
+  for(const q of G.players) q.recv=0;
+  if(p.team===0 && !p.isGK) G.ctrl=p;
+}
+function kick(p,vx,vy,vz){
+  const b=G.ball; b.owner=null; b.vx=vx; b.vy=vy; b.vz=vz||0; b.z=Math.max(b.z,0.1);
+  b.lastTouch=p.team; b.lastKicker=p; p.kickCd=0.28; p.setPiece=false;
+}
+function segDist(px,py,ax,ay,bx,by){const dx=bx-ax,dy=by-ay,l=dx*dx+dy*dy;let t=l?((px-ax)*dx+(py-ay)*dy)/l:0;t=clamp(t,0,1);return hyp(px-(ax+t*dx),py-(ay+t*dy));}
+function findPass(p,dir,maxD,userMode){
+  let best=null,bs=-1e9;
+  const opp=G.players.filter(q=>q.team!==p.team);
+  for(const t of G.players){
+    if(t.team!==p.team||t===p) continue;
+    const dx=t.x-p.x, dy=t.y-p.y, d=hyp(dx,dy);
+    if(d<45||d>maxD) continue;
+    const cos=(dx*dir.x+dy*dir.y)/d;
+    let lane=0, open=200;
+    for(const o of opp){ if(segDist(o.x,o.y,p.x,p.y,t.x,t.y)<20) lane-=1.4; open=Math.min(open,hyp(o.x-t.x,o.y-t.y)); }
+    let s;
+    if(userMode){ if(cos<0.35) continue; s=cos*3 - d/700 + lane*0.35 + open/400; }
+    else { s=(relX(p.team,t.x)-relX(p.team,p.x))*3.2 + lane + open/110 - d/900 + (t.isGK?-2:0); }
+    if(s>bs){bs=s;best=t;}
+  }
+  return best;
+}
+function doPass(p,t){
+  const b=G.ball;
+  const lx=t.x+t.vx*0.35, ly=t.y+t.vy*0.35;
+  const dx=lx-p.x, dy=ly-p.y, d=hyp(dx,dy);
+  const sp=clamp(d*1.15*1.32+90,250,900);
+  b.x=p.x+dx/d*10; b.y=p.y+dy/d*10;
+  kick(p,dx/d*sp,dy/d*sp, d>330?190:0);
+  t.recv=1.2; b.passTo=t;
+  if(p.team===0) G.ctrl=t;
+}
+function doShoot(p,power,aim){
+  const gx = p.team===0 ? W+4 : -4;
+  const ty = GY + aim;
+  let ang=Math.atan2(ty-p.y,gx-p.x);
+  const dist=hyp(gx-p.x,GY-p.y);
+  ang += rnd(-1,1)*(0.025+0.09*power*power+dist/9000);
+  const sp=640+560*power;
+  kick(p,Math.cos(ang)*sp,Math.sin(ang)*sp,40+rnd(0,190)*power);
+  G.ball.shot=true;
+  say(`${p.name}의 슈팅!`);
+}
+
+/* Restart */
+function restart(type,tm,x,y){
+  const b=G.ball; b.vx=b.vy=b.vz=b.z=0; b.x=x; b.y=y; b.shot=false;
+  let taker = type==='goalkick' ? G.players.find(p=>p.team===tm&&p.isGK) : nearestTo(tm,x,y,true);
+  taker.x=x; taker.y=y; taker.vx=taker.vy=0;
+  const tx = type==='goalkick'?absX(tm,0.6):W/2;
+  const a=Math.atan2(GY-y, tx-x); taker.fx=Math.cos(a); taker.fy=Math.sin(a);
+  for(const p of G.players){ if(p.team!==tm){ const d=hyp(p.x-x,p.y-y); if(d<80){ p.x+= (p.x-x)/(d||1)*(80-d); p.y+=(p.y-y)/(d||1)*(80-d);} } }
+  setOwner(taker); taker.setPiece=true; taker.protect=3; taker.hold=0;
+  if(tm===0 && !taker.isGK) G.ctrl=taker;
+  G.state='set'; G.stateT=0.9;
+  const msg={throw:'스로인',corner:'코너킥',goalkick:'골킥'}[type];
+  say(`${G.teams[tm].t.name} ${msg}`);
+}
+
+/* Main loop */
+function loop(now){
+  raf=requestAnimationFrame(loop);
+  let dt=Math.min(0.1,(now-last)/1000); last=now;
+  if(!paused && G){
+    acc+=dt;
+    while(acc>=1/60){ step(1/60); acc-=1/60; }
+  }
+  if(G) render();
+}
+
+function step(dt){
+  const b=G.ball;
+  if(commT>0){commT-=dt; if(commT<=0) $('comm').style.opacity=0;}
+  if(G.state==='over') return;
+
+  if(G.state==='kick'||G.state==='set'||G.state==='goal'||G.state==='half'){
+    G.stateT-=dt;
+  }
+  if(G.state==='kick' && G.stateT<=0) G.state='play';
+  if(G.state==='set' && G.stateT<=0) G.state='play';
+  if(G.state==='goal' && G.stateT<=0){
+    banner('');
+    if(G.elapsed>=G.len) return endMatch();
+    if(!G.half && G.elapsed>=G.len/2){ G.half=true; G.state='half'; G.stateT=2; banner('하프타임',`${G.teams[0].t.name} ${G.score[0]} : ${G.score[1]} ${G.teams[1].t.name}`); G.pendKick=1; return; }
+    kickoff(G.pendKick);
+  }
+  if(G.state==='half' && G.stateT<=0){ banner(''); kickoff(1); say('후반전 시작!'); }
+
+  if(G.state==='play'){
+    G.elapsed+=dt;
+    if(!G.half && G.elapsed>=G.len/2){
+      G.half=true; G.state='half'; G.stateT=2.2;
+      banner('하프타임',`${G.teams[0].t.name} ${G.score[0]} : ${G.score[1]} ${G.teams[1].t.name}`);
+      return;
+    }
+    if(G.elapsed>=G.len){ return endMatch(); }
+  }
+  const live = G.state==='play';
+  const frozen = G.state==='kick'||G.state==='half';
+
+  // user actions
+  if(live || G.state==='set') userActions(dt);
+
+  // players
+  for(const p of G.players){
+    p.kickCd-=dt; p.touchCd-=dt; p.protect-=dt; p.recv-=dt;
+    if(p.stun>0){ p.stun-=dt; p.vx*=0.9; p.vy*=0.9; p.x+=p.vx*dt; p.y+=p.vy*dt; continue; }
+    let tx=0,ty=0,sp=0;
+    if(frozen){ p.vx*=0.8; p.vy*=0.8; continue; }
+    if(G.state==='goal'){ const r=celebrate(p); tx=r[0];ty=r[1];sp=r[2]; }
+    else if(p===G.ctrl && !(p.setPiece)){
+      const d=inputDir();
+      const has=b.owner===p;
+      let s=p.spd*(has?0.9:1);
+      const spr=sprintHeld() && d.m>0 && p.stamina>0.05;
+      if(spr){ s*=1.36; p.stamina=Math.max(0,p.stamina-0.28*dt); } else p.stamina=Math.min(1,p.stamina+0.12*dt);
+      tx=d.x; ty=d.y; sp=s*d.m;
+      if(G.state==='set') sp=0;
+    } else if(p.setPiece && p.team===0 && !p.isGK){ sp=0; }
+    else { const r=ai(p,dt); tx=r[0];ty=r[1];sp=r[2]; }
+    const dvx=tx*sp, dvy=ty*sp;
+    const k=Math.min(1,dt*(p===G.ctrl?10:7));
+    p.vx+=(dvx-p.vx)*k; p.vy+=(dvy-p.vy)*k;
+    p.x+=p.vx*dt; p.y+=p.vy*dt;
+    p.x=clamp(p.x,-30,W+30); p.y=clamp(p.y,-30,H+30);
+    const v=hyp(p.vx,p.vy);
+    if(v>12){ p.fx=p.vx/v; p.fy=p.vy/v; p.phase+=v*dt*0.09; }
+  }
+  // separation
+  const P=G.players;
+  for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++){
+    const a=P[i],c=P[j],dx=c.x-a.x,dy=c.y-a.y,d=hyp(dx,dy);
+    if(d<17&&d>0.01){const o=(17-d)/2,ux=dx/d,uy=dy/d;a.x-=ux*o;a.y-=uy*o;c.x+=ux*o;c.y+=uy*o;}
+  }
+
+  // ball
+  if(b.owner){
+    const o=b.owner;
+    b.x=o.x+o.fx*11; b.y=o.y+o.fy*11; b.vx=o.vx; b.vy=o.vy; b.z=0;
+    if(live) steals(o,dt);
+  } else if(!frozen){
+    for(let s=0;s<2;s++){
+      const h=dt/2;
+      b.x+=b.vx*h; b.y+=b.vy*h;
+      if(b.z>0||b.vz>0){ b.vz-=980*h; b.z+=b.vz*h; if(b.z<=0){ b.z=0; b.vz = Math.abs(b.vz)>70? -b.vz*0.35 : 0; } }
+      const f=Math.exp(-(b.z>2?0.35:1.15)*h); b.vx*=f; b.vy*=f;
+      if(G.state==='play') { if(pickups()) break; }
+    }
+    if(G.state==='goal'){ // keep in net
+      if(b.x<-20){b.x=-20;b.vx*=-0.2;} if(b.x>W+20){b.x=W+20;b.vx*=-0.2;}
+      b.y=clamp(b.y,GY-GH+3,GY+GH-3);
+    }
+    if(hyp(b.vx,b.vy)<20) b.shot=false;
+  }
+  if(live) checkOut();
+
+  // auto switch
+  if(live){
+    G.switchT-=dt;
+    const opp = b.owner && b.owner.team===1;
+    const loose = !b.owner && !(b.passTo && b.passTo.team===0);
+    if((opp||loose) && G.switchT<=0){
+      G.switchT=0.35;
+      const px=b.x+b.vx*0.25, py=b.y+b.vy*0.25;
+      const n=nearestTo(0,px,py,true);
+      if(n && n!==G.ctrl && hyp(G.ctrl.x-px,G.ctrl.y-py)-hyp(n.x-px,n.y-py)>90) G.ctrl=n;
+    }
+  }
+
+  // camera
+  const lead = b.owner ? 40 : 0;
+  const tx = b.x + (b.owner? b.owner.fx*lead:b.vx*0.15), ty=b.y+(b.owner? b.owner.fy*lead*0.5:b.vy*0.1);
+  cam.x+= (tx-cam.x)*Math.min(1,dt*3.2); cam.y+=(ty-cam.y)*Math.min(1,dt*3.2);
+}
+
+function celebrate(p){
+  const sc=G.lastScorer;
+  if(sc && p.team===sc.team && p!==sc){ const dx=sc.x-p.x, dy=sc.y-p.y, d=hyp(dx,dy); if(d>30) return [dx/d,dy/d,p.spd*0.9]; }
+  if(p===sc){ const cx = sc.team===0?W-60:60; const cy = sc.y<GY? 30:H-30; const dx=cx-p.x,dy=cy-p.y,d=hyp(dx,dy); if(d>10) return [dx/d,dy/d,p.spd*1.1]; }
+  return [0,0,0];
+}
+
+function userActions(dt){
+  const b=G.ball, c=G.ctrl;
+  const has=b.owner===c;
+  const d=inputDir();
+  // pass / tackle
+  if(edge.pass){
+    edge.pass=false;
+    if(has){
+      const dir = d.m? {x:d.x,y:d.y} : {x:c.fx,y:c.fy};
+      let t=findPass(c,dir,c.setPiece?620:560,true) || findPass(c,{x:1,y:0},620,false);
+      if(t){ doPass(c,t); G.charge=-1; }
+    } else if(b.owner && b.owner.team===1 && G.state==='play' && c.stun<=0){
+      const o=b.owner, dist=hyp(o.x-c.x,o.y-c.y);
+      if(dist<32 && o.protect<=0){
+        const dx=o.x-c.x, dy=o.y-c.y; c.vx=dx/dist*260; c.vy=dy/dist*260;
+        const behind=(o.fx*dx+o.fy*dy)>0; // tackler is behind if owner faces away
+        if(Math.random() < (behind?0.42:0.68)){ o.stun=0.5; setOwner(c); c.protect=0.6; say(`${c.name}의 태클 성공!`); }
+        else { c.stun=0.6; say(`${c.name}의 태클이 빗나갔습니다`); }
+      } else if(dist<70){ c.vx=dx2(o.x-c.x,dist)*230; c.vy=dx2(o.y-c.y,dist)*230; }
+    }
+  }
+  // shoot charge
+  if(shootHeld() && has && G.charge<0) G.charge=0;
+  if(G.charge>=0){ G.charge=Math.min(1,G.charge+dt*1.15); if(!has) G.charge=-1; }
+  if(edge.shootUp){
+    edge.shootUp=false;
+    if(has && G.charge>=0){
+      const aim = d.y? d.y*28 : rnd(-14,14);
+      doShoot(c,Math.max(0.15,G.charge),aim);
+    }
+    G.charge=-1;
+  }
+  // switch
+  if(edge.switch){
+    edge.switch=false;
+    if(!(b.owner&&b.owner.team===0)){
+      const n=nearestTo(0,b.x,b.y,true,c); if(n) G.ctrl=n;
+    }
+  }
+  // set piece auto
+  if(c.setPiece && has && G.state==='play'){ c.hold+=dt; if(c.hold>5){ const t=findPass(c,{x:1,y:0},620,false); if(t) doPass(c,t);} }
+  edge.pass=false; edge.switch=false;
+}
+function dx2(v,d){return d?v/d:0;}
+
+function steals(o,dt){
+  if(o.protect>0) return;
+  for(const p of G.players){
+    if(p.team===o.team||p.stun>0||p===G.ctrl) continue;
+    const d=hyp(p.x-o.x,p.y-o.y);
+    if(d<15){
+      const rate = p.team===1 ? G.diff.steal : 1.25;
+      if(Math.random()<rate*dt){
+        o.stun=0.4; setOwner(p); p.protect=0.7;
+        if(p.team===1) say(`${p.name}가 공을 빼앗았습니다`);
+        return;
+      }
+    }
+  }
+}
+
+function pickups(){
+  const b=G.ball;
+  if(b.z>40) return false;
+  let best=null,bd=1e9;
+  for(const p of G.players){
+    if(p.kickCd>0||p.touchCd>0||p.stun>0) continue;
+    const r = p.isGK?20:13, zl=p.isGK?40:14;
+    if(b.z>zl) continue;
+    const d=hyp(p.x-b.x,p.y-b.y);
+    if(d<r&&d<bd){bd=d;best=p;}
+  }
+  if(!best) return false;
+  const p=best, sp=hyp(b.vx,b.vy);
+  if(p.isGK && b.shot && b.lastTouch!==p.team){
+    const base = p.team===1 ? 0.64+G.diff.save : 0.62;
+    const pr = clamp(base - (sp-650)/1700 - bd/80, 0.12, 0.93);
+    if(Math.random()<pr){
+      if(sp<820){ setOwner(p); say(`${p.name} 골키퍼 선방!`); }
+      else { b.vx=-b.vx*0.35; b.vy=rnd(-1,1)*260; b.vz=120; b.lastTouch=p.team; b.shot=false; p.touchCd=0.5; say(`${p.name}가 쳐냅니다!`); }
+      return true;
+    } else { p.touchCd=0.6; return false; }
+  }
+  if(sp>480 && !p.isGK && b.lastTouch!==p.team){
+    if(Math.random()<0.38){ setOwner(p); if(b.shot) say(`${p.name}가 슈팅을 막아냅니다`); return true; }
+    const a=Math.atan2(b.vy,b.vx)+rnd(-1,1); const ns=sp*0.4; b.vx=Math.cos(a)*ns; b.vy=Math.sin(a)*ns; b.lastTouch=p.team; b.shot=false; p.touchCd=0.45; return true;
+  }
+  setOwner(p); return true;
+}
+
+function checkOut(){
+  const b=G.ball;
+  if(b.owner) { // dribbled out
+    if(b.x<-2||b.x>W+2||b.y<-2||b.y>H+2){ b.lastTouch=b.owner.team; b.owner=null; }
+    else return;
+  }
+  if(b.x<0||b.x>W){
+    const right=b.x>W;
+    if(Math.abs(b.y-GY)<GH-2 && b.z<26){ return goal(right?0:1); }
+    const def = right?1:0;
+    const att = 1-def;
+    if(b.lastTouch===def){ restart('corner',att, right?W-1:1, b.y<GY?1:H-1); }
+    else restart('goalkick',def, right?W-50:50, GY+(b.y<GY?-40:40));
+    return;
+  }
+  if(b.y<0||b.y>H){ restart('throw',1-b.lastTouch, clamp(b.x,8,W-8), b.y<0?2:H-2); }
+}
+
+function goal(tm){
+  const b=G.ball;
+  G.score[tm]++;
+  const k=b.lastKicker;
+  const min=Math.min(90,Math.max(1,Math.ceil(G.elapsed/G.len*90)));
+  let who, own=false;
+  if(k && k.team===tm){ who=k.name; } else { who=k?k.name:'상대 선수'; own=true; }
+  G.scorers[tm].push({who:own?`${who} (자책골)`:who,min});
+  G.lastScorer = (k&&k.team===tm)?k:null;
+  G.state='goal'; G.stateT=3; G.pendKick=1-tm; b.shot=false;
+  banner('골!', `${own?'자책골 · ':''}${who} ${min}'`);
+  say(`골! ${G.teams[tm].t.name}의 ${who}!`);
+  updHud();
+}
+
+function endMatch(){
+  G.state='over';
+  banner('경기 종료');
+  setTimeout(()=>{
+    banner('');
+    cancelAnimationFrame(raf);
+    const A=G.teams[0].t, B=G.teams[1].t;
+    $('rA').innerHTML=FLAGS[G.teams[0].k]; $('rB').innerHTML=FLAGS[G.teams[1].k];
+    $('rAn').textContent=A.name; $('rBn').textContent=B.name;
+    $('rScore').innerHTML=`${G.score[0]}<span>:</span>${G.score[1]}`;
+    $('verdict').textContent = G.score[0]>G.score[1]?'승리했습니다!':G.score[0]<G.score[1]?'아쉽게 졌습니다':'무승부';
+    const li=arr=>arr.length?arr.map(s=>`<li><span>${s.min}'</span>${s.who}</li>`).join(''):'<li class="none">득점 없음</li>';
+    $('sA').innerHTML=li(G.scorers[0]); $('sB').innerHTML=li(G.scorers[1]);
+    show('result');
+  },1800);
+}
+
+/* AI */
+function ai(p,dt){
+  const b=G.ball, tm=p.team, dir=tm===0?1:-1;
+  const gkX = tm===0?0:W;
+  if(p.isGK) return gkAI(p,dt);
+  if(b.owner===p) return carrier(p,dt);
+  const own = b.owner && b.owner.team===tm;
+  const oppHas = b.owner && b.owner.team!==tm;
+  // receive
+  if(p.recv>0 && !b.owner && b.passTo===p){
+    const tx=b.x+b.vx*0.22, ty=b.y+b.vy*0.22; return go(p,tx,ty,1.05);
+  }
+  // chase
+  if(!own){
+    const px=b.x+b.vx*0.3, py=b.y+b.vy*0.3;
+    const mates=G.players.filter(q=>q.team===tm&&!q.isGK&&q!==(tm===0?G.ctrl:null)).sort((a,c)=>hyp(a.x-px,a.y-py)-hyp(c.x-px,c.y-py));
+    const rank=mates.indexOf(p), d=hyp(p.x-px,p.y-py);
+    if(tm===1){
+      if(rank===0) return go(p,px,py,1.08);
+      if(rank===1 && d<130) return go(p, px+(gkX-px)*0.3, py+(GY-py)*0.3, 0.9);
+    } else {
+      const ctrlD = hyp(G.ctrl.x-px,G.ctrl.y-py);
+      if(rank===0 && (!oppHas || d<140) && (d<ctrlD+60 || !oppHas&&d<180)) return go(p,px,py,oppHas?0.85:1.0);
+    }
+  }
+  // formation
+  const br=relX(tm,b.x), by=b.y/H;
+  let r=FORM[p.i][0]*0.55 + br*0.45 + (own?0.08:oppHas?-0.06:0) - 0.04;
+  if(p.i<=4 && oppHas) r=Math.min(r, br-0.04);
+  if(p.i<=4) r=Math.min(r,0.62);
+  r=clamp(r,0.06,0.93);
+  let y=baseY(p)*0.72 + by*H*0.28;
+  if(own && p.i>=8) { r=Math.min(0.92,r+0.04); }
+  return go(p,absX(tm,r),y,0.8);
+}
+function go(p,tx,ty,f){
+  const dx=tx-p.x, dy=ty-p.y, d=hyp(dx,dy);
+  if(d<6) return [0,0,0];
+  const s = d<40 ? p.spd*f*(d/40)*0.9+10 : p.spd*f;
+  return [dx/d,dy/d,s];
+}
+function carrier(p,dt){
+  const tm=p.team, dir=tm===0?1:-1;
+  const gx=tm===0?W:0;
+  const dg=hyp(gx-p.x,GY-p.y);
+  let near=null,nd=1e9;
+  for(const o of G.players){ if(o.team===tm) continue; const d=hyp(o.x-p.x,o.y-p.y); if(d<nd){nd=d;near=o;} }
+  const ahead = near && ((near.x-p.x)*dir>0);
+  p.decT-=dt;
+  if(p.setPiece){ p.hold+=dt; if(p.hold>0.7){ const t=findPass(p,{x:dir,y:0},640,false); if(t){doPass(p,t);} } return [0,0,0]; }
+  if(p.decT<=0){
+    p.decT=(0.22+Math.random()*0.3)*G.diff.think;
+    const angOk = Math.abs(p.y-GY) < dg*0.9;
+    if(dg<175 || (dg<300 && angOk && Math.random()<(nd>40?0.45:0.25))){
+      doShoot(p, clamp(0.45+rnd(0,0.45),0,1), rnd(-30,30)); return [0,0,0];
+    }
+    if((nd<48 && ahead && Math.random()<0.7) || Math.random()<0.08){
+      const t=findPass(p,{x:dir,y:0},520,false);
+      if(t && relX(tm,t.x)>relX(tm,p.x)-0.12){ doPass(p,t); return [0,0,0]; }
+    }
+  }
+  let tx=gx, ty=GY + (p.y-GY)*0.4;
+  if(dg>360) ty = clamp(p.y + (GY-p.y)*0.15, 60, H-60);
+  let mx=tx-p.x, my=ty-p.y; const md=hyp(mx,my); mx/=md; my/=md;
+  if(near && nd<70 && ahead){ const side = (near.y>p.y)?-1:1; my+=side*0.9; const l=hyp(mx,my); mx/=l; my/=l; }
+  if(p.y<40) my=Math.abs(my); if(p.y>H-40) my=-Math.abs(my);
+  return [mx,my,p.spd*0.88];
+}
+function gkAI(p,dt){
+  const b=G.ball, tm=p.team, dir=tm===0?1:-1, gx=tm===0?0:W;
+  if(b.owner===p){
+    p.hold+=dt;
+    if(p.hold>1.1){
+      const t=findPass(p,{x:dir,y:0},640,false);
+      if(t){ doPass(p,t); } else { kick(p,dir*720,rnd(-120,120),260); }
+    }
+    return go(p,gx+dir*30,GY,0.5);
+  }
+  const incoming = !b.owner && (b.vx*dir<-150) && relX(tm,b.x)<0.4;
+  if(incoming){
+    const t=(gx+dir*10-b.x)/b.vx; const yy = t>0? b.y+b.vy*t : b.y;
+    return go(p,gx+dir*12, clamp(yy,GY-GH-6,GY+GH+6), 1.35);
+  }
+  const db=hyp(b.x-gx,b.y-GY);
+  if(!b.owner && db<130 && hyp(b.vx,b.vy)<260){
+    const closest=nearestTo(1-tm,b.x,b.y,false);
+    if(!closest || hyp(closest.x-b.x,closest.y-b.y)>hyp(p.x-b.x,p.y-b.y)-20) return go(p,b.x,b.y,1.15);
+  }
+  if(b.owner && b.owner.team!==tm && db<70) return go(p,b.x,b.y,1.0);
+  const ty=clamp(GY+(b.y-GY)*0.32,GY-30,GY+30);
+  const off = 10 + clamp(26 - db/18, 0, 22);
+  return go(p,gx+dir*off,ty,0.9);
+}
+
+/* Render */
+function w2s(x,y){ return [ (x-cam.x)*scale + cw/2, (y-cam.y)*scale + ch/2 ]; }
+function render(){
+  const vw=cw/scale, vh=ch/scale;
+  const minX=-M+vw/2, maxX=W+M-vw/2, minY=-M+vh/2, maxY=H+M-vh/2;
+  cam.x = minX>maxX ? W/2 : clamp(cam.x,minX,maxX);
+  cam.y = minY>maxY ? GY : clamp(cam.y,minY,maxY);
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.fillStyle='#08110d'; ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.setTransform(dpr*scale,0,0,dpr*scale,(cw/2-cam.x*scale)*dpr,(ch/2-cam.y*scale)*dpr);
+  ctx.drawImage(pitch,-M,-M,W+2*M,H+2*M);
+
+  const b=G.ball, c=G.ctrl;
+  // ctrl ring
+  if(c && G.state!=='over'){
+    const t=performance.now()/1000;
+    ctx.strokeStyle='#ffd76a'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.ellipse(c.x,c.y+3,15+Math.sin(t*6)*1.2,9,0,0,7); ctx.stroke();
+  }
+  // shadows
+  ctx.fillStyle='rgba(0,0,0,.28)';
+  for(const p of G.players){ ctx.beginPath(); ctx.ellipse(p.x+3,p.y+5,9,6,0,0,7); ctx.fill(); }
+  const ps=[...G.players].sort((a,d)=>a.y-d.y);
+  for(const p of ps) drawPlayer(p);
+  // ball
+  ctx.fillStyle='rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(b.x+2+b.z*0.2,b.y+3+b.z*0.1,4.6,3.2,0,0,7); ctx.fill();
+  const by=b.y-b.z*0.55, br=4.6+b.z*0.03;
+  ctx.fillStyle='#fbfbf7'; ctx.beginPath(); ctx.arc(b.x,by,br,0,7); ctx.fill();
+  ctx.strokeStyle='rgba(0,0,0,.5)'; ctx.lineWidth=0.8; ctx.stroke();
+  ctx.fillStyle='#1d1d1d'; const ra=(b.x+b.y)*0.12;
+  for(let k=0;k<3;k++){ const a=ra+k*2.1; ctx.beginPath(); ctx.arc(b.x+Math.cos(a)*2.2,by+Math.sin(a)*2.2,1.1,0,7); ctx.fill(); }
+
+  // screen-space overlay
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  const g=ctx.createRadialGradient(cw/2,ch/2,Math.min(cw,ch)*0.35,cw/2,ch/2,Math.max(cw,ch)*0.75);
+  g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,'rgba(0,0,0,.45)');
+  ctx.fillStyle=g; ctx.fillRect(0,0,cw,ch);
+  ctx.textAlign='center'; ctx.textBaseline='bottom';
+  if(c){
+    const [sx,sy]=w2s(c.x,c.y);
+    label(sx,sy-12*scale-14,c.name,'#ffd76a','#2a1f00',true);
+    // stamina
+    ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(sx-18,sy+12*scale+4,36,4);
+    ctx.fillStyle=c.stamina>0.3?'#9fe08a':'#ff8a5c'; ctx.fillRect(sx-18,sy+12*scale+4,36*c.stamina,4);
+    if(G.charge>=0){
+      ctx.fillStyle='rgba(0,0,0,.6)'; ctx.fillRect(sx-24,sy+12*scale+11,48,7);
+      ctx.fillStyle=G.charge>0.85?'#ff6b3d':'#ffd76a'; ctx.fillRect(sx-23,sy+12*scale+12,46*G.charge,5);
+    }
+  }
+  if(b.owner && b.owner!==c){
+    const o=b.owner, [sx,sy]=w2s(o.x,o.y);
+    label(sx,sy-12*scale-10,o.name,o.team===0?'#eef3ea':'#0f1c16',o.team===0?'#0f1c16':'#eef3ea',false);
+  }
+  updHud();
+  drawMini();
+}
+function label(x,y,t,bg,fg,bold){
+  ctx.font=`${bold?700:600} 12px "IBM Plex Sans KR", sans-serif`;
+  const w=ctx.measureText(t).width+12;
+  ctx.fillStyle=bg; ctx.globalAlpha=0.92; ctx.fillRect(x-w/2,y-17,w,18); ctx.globalAlpha=1;
+  ctx.fillStyle=fg; ctx.fillText(t,x,y-2);
+  if(bold){ ctx.fillStyle=bg; ctx.beginPath(); ctx.moveTo(x-5,y+1); ctx.lineTo(x+5,y+1); ctx.lineTo(x,y+6); ctx.fill(); }
+}
+function drawPlayer(p){
+  const T=G.teams[p.team];
+  const col = p.isGK? T.gk : T.kit;
+  const px=-p.fy, py=p.fx; // perpendicular
+  const mv=hyp(p.vx,p.vy)>12, sw=mv?Math.sin(p.phase)*4:0;
+  // feet
+  ctx.fillStyle='#15140f';
+  ctx.beginPath(); ctx.arc(p.x+px*3.6+p.fx*sw, p.y+py*3.6+p.fy*sw, 2.4,0,7); ctx.fill();
+  ctx.beginPath(); ctx.arc(p.x-px*3.6-p.fx*sw, p.y-py*3.6-p.fy*sw, 2.4,0,7); ctx.fill();
+  // body (shoulders)
+  ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(Math.atan2(p.fy,p.fx));
+  ctx.beginPath(); ctx.ellipse(0,0,6.2,9.4,0,0,7);
+  ctx.fillStyle=col; ctx.fill();
+  if(T.stripes && !p.isGK){ ctx.save(); ctx.clip(); ctx.fillStyle='#ffffff'; for(let k=-8;k<=8;k+=6) ctx.fillRect(-7,k,14,2.6); ctx.restore(); }
+  ctx.lineWidth=1.3; ctx.strokeStyle=shade(col,0.55); ctx.stroke();
+  // head
+  ctx.fillStyle='#3a2a1e'; ctx.beginPath(); ctx.arc(0.8,0,4.1,0,7); ctx.fill();
+  ctx.restore();
+  if(p.stun>0){ ctx.strokeStyle='rgba(255,255,255,.6)'; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(p.x,p.y-12,4,0,7); ctx.stroke(); }
+}
+function drawMini(){
+  const w=mini.width, h=mini.height;
+  mctx.setTransform(1,0,0,1,0,0); mctx.clearRect(0,0,w,h);
+  const pad=4*dpr, sx=(w-2*pad)/W, sy=(h-2*pad)/H;
+  mctx.strokeStyle='rgba(238,243,234,.5)'; mctx.lineWidth=dpr;
+  mctx.strokeRect(pad,pad,W*sx,H*sy);
+  mctx.beginPath(); mctx.moveTo(pad+W/2*sx,pad); mctx.lineTo(pad+W/2*sx,pad+H*sy); mctx.stroke();
+  for(const p of G.players){
+    const col = p===G.ctrl ? '#ffd76a' : (p.team===0 ? G.teams[0].kit : G.teams[1].kit);
+    mctx.fillStyle=col; mctx.beginPath(); mctx.arc(pad+p.x*sx,pad+p.y*sy,(p===G.ctrl?3:2.2)*dpr,0,7); mctx.fill();
+    if(lum(col)>0.85||lum(col)<0.15){ mctx.strokeStyle=p.team===0?'#ffffff':'#000000'; mctx.lineWidth=0.6*dpr; mctx.stroke(); }
+  }
+  mctx.fillStyle='#ffffff'; mctx.beginPath(); mctx.arc(pad+G.ball.x*sx,pad+G.ball.y*sy,2*dpr,0,7); mctx.fill();
+}
+let lastHud='';
+function updHud(){
+  const min=Math.min(90,Math.floor(G.elapsed/G.len*90));
+  const s=`${G.score[0]} - ${G.score[1]}|${min}`;
+  if(s===lastHud) return; lastHud=s;
+  $('hScore').textContent=`${G.score[0]} - ${G.score[1]}`;
+  $('hClock').textContent=`${min}'`;
+}
+
+})();
+</script>
+
+</body>
+</html>
